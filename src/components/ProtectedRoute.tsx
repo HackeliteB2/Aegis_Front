@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useEffect, ReactNode } from 'react';
 import MatrixBackground from './MatrixBackground';
 
+// DEMO MODE: Set this to true to disable route protection
+const DEMO_MODE = true;
+
 interface ProtectedRouteProps {
   children: ReactNode;
   requireAdmin?: boolean;
@@ -20,6 +23,11 @@ export default function ProtectedRoute({
   const router = useRouter();
 
   useEffect(() => {
+    if (DEMO_MODE) {
+      // In demo mode, bypass all authentication checks
+      return;
+    }
+
     if (!isLoading) {
       if (!isAuthenticated) {
         router.push(redirectTo);
@@ -38,6 +46,11 @@ export default function ProtectedRoute({
       }
     }
   }, [isAuthenticated, isAdmin, isLoading, requireAdmin, router, redirectTo, user]);
+
+  if (DEMO_MODE) {
+    // In demo mode, always render children without any checks
+    return <>{children}</>;
+  }
 
   if (isLoading) {
     return (

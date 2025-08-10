@@ -2,6 +2,9 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+// DEMO MODE: Set this to true to disable authentication
+const DEMO_MODE = true;
+
 interface User {
   id: number;
   username: string;
@@ -42,7 +45,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored authentication data on mount
+    if (DEMO_MODE) {
+      // In demo mode, automatically set a mock admin user
+      const mockUser: User = {
+        id: 1,
+        username: 'demo_admin',
+        email: 'admin@demo.com',
+        name: 'Demo Administrator',
+        role: 'admin',
+        status: 'active',
+        created_at: new Date().toISOString(),
+      };
+      setUser(mockUser);
+      setToken('demo_token_123');
+      setIsLoading(false);
+      return;
+    }
+
+    // Normal authentication flow
     const storedToken = localStorage.getItem('aegis_token');
     const storedUser = localStorage.getItem('aegis_user');
 
@@ -59,7 +79,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setToken(null);
           setUser(null);
         });
-      } catch (error) {
+      } catch {
         // Invalid stored data, clear it
         localStorage.removeItem('aegis_token');
         localStorage.removeItem('aegis_user');
@@ -93,6 +113,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const login = async (username: string, password: string): Promise<boolean> => {
+    if (DEMO_MODE) {
+      // In demo mode, accept any credentials and return mock user
+      setIsLoading(true);
+      
+      // Simulate loading delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const mockUser: User = {
+        id: 1,
+        username: username || 'demo_user',
+        email: 'user@demo.com',
+        name: `Demo User (${username})`,
+        role: username === 'admin' ? 'admin' : 'user',
+        status: 'active',
+        created_at: new Date().toISOString(),
+      };
+      
+      setUser(mockUser);
+      setToken('demo_token_123');
+      setIsLoading(false);
+      return true;
+    }
+
     try {
       setIsLoading(true);
       
@@ -130,7 +173,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = () => {
-    // Clear authentication data
+    if (DEMO_MODE) {
+      // In demo mode, just clear the state
+      setToken(null);
+      setUser(null);
+      return;
+    }
+
+    // Normal logout flow
     localStorage.removeItem('aegis_token');
     localStorage.removeItem('aegis_user');
     setToken(null);
