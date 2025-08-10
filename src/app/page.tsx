@@ -15,8 +15,7 @@ export default function LandingPage() {
           AEGIS
         </h1>
         <p className="text-gray-400 mt-4 text-lg md:text-xl max-w-2xl">
-          A next-generation security framework for robust asset protection and
-          threat intelligence.
+          A next-generation framework for Online Gaming.
         </p>
         <div className="mt-8 space-x-4">
           <Link
